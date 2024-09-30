@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD SEPARACAO</title>
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .swiper-container {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .swiper-slide img, .swiper-slide iframe {
+      width: 90vw;
+      height: 90vh;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+
+    /* Estilo do Formulário */
+    .upload-form {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-form input[type="file"] {
+      margin-right: 10px;
+    }
+
+    /* Estilo para mensagem de erro */
+    .error-message {
+      color: red;
+      text-align: center;
+      margin: 20px;
+      display: none; /* Escondido por padrão */
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Mensagem de Erro -->
+  <div class="error-message" id="error-message">Erro ao carregar imagens. Tente novamente mais tarde.</div>
+
+  <!-- Carrossel de Imagens e Vídeos -->
+  <div class="swiper-container">
+    <div class="swiper-wrapper" id="carousel-images">
+      <!-- Imagens e vídeos serão inseridos dinamicamente -->
+    </div>
+
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script>
+    const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
+    const API_KEY = 'AIzaSyBT_UvwH2mg-QtCGEkqkAFxlV4dfjMRHgw'; // Sua chave de API
+
+    const carouselImages = document.getElementById('carousel-images');
+    const errorMessage = document.getElementById('error-message');
+
+    // Função para buscar imagens e vídeos da API do Google Drive
+    async function fetchGoogleDriveFiles() {
+      const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.files && data.files.length > 0) {
+          // Limpar o carrossel antes de carregar novos arquivos
+          carouselImages.innerHTML = '';
+          errorMessage.style.display = 'none'; // Esconder a mensagem de erro
+
+          data.files.forEach(file => {
+            const mimeType = file.mimeType;
+
+            const slide = document.createElement('div');
+            slide.classList.add('swiper-slide');
+
+            // Se for uma imagem
+            if (mimeType.startsWith('image/')) {
+              const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
+              const img = document.createElement('img');
+              img.src = imageUrl;
+              img.alt = file.name;
+
+              img.onload = () => {
+                img.style.opacity = '1'; // Exibe a imagem após o carregamento
+              };
+              
+              img.onerror = () => {
+                console.error('Erro ao carregar imagem:', imageUrl);
+                img.src = ''; // Limpa a imagem se houver erro
+              };
+
+              slide.appendChild(img);
+            }
+            // Se for um vídeo
+            else if (mimeType.startsWith('video/')) {
+              const videoUrl = `https://drive.google.com/file/d/${file.id}/preview`;
+              const video = document.createElement('iframe'); // Usando iframe para vídeos
+              video.src = videoUrl;
+              video.width = "100%";
+              video.height = "100%";
+              video.allow = "autoplay"; // Permitir autoplay no iframe
+              video.style.border = "none"; // Remover borda do iframe
+              slide.appendChild(video);
+            }
+
+            carouselImages.appendChild(slide);
+          });
+
+          // Atualiza o carrossel para os novos arquivos
+          swiper.update();
+        } else {
+          // Se não houver arquivos, mostrar mensagem de erro
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Erro ao buscar arquivos:', error);
+        errorMessage.style.display = 'block'; // Mostrar mensagem de erro
+      }
+    }
+
+    // Inicialização do carrossel Swiper com autoplay para mudar os slides a cada 20 segundos
+    const swiper = new Swiper('.swiper-container', {
+      loop: true,
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      autoplay: {
+        delay: 20000, // 20 segundos
+        disableOnInteraction: false, // Continuar o autoplay mesmo após interação
+      },
+    });
+
+    // Chamar a função para carregar as imagens e vídeos
+    fetchGoogleDriveFiles();
+
+    // Adicionar um timer para garantir que o autoplay funcione corretamente
+    setInterval(() => {
+      if (swiper.slides.length > 0) { // Verifica se há slides
+        swiper.slideNext(); // Muda para o próximo slide
+      }
+    }, 20000); // Troca a cada 20 segundos
+
+    // Atualizar a página a cada 2 minutos (120.000 milissegundos)
+    setTimeout(() => {
+      window.location.reload();
+    }, 120000);
+  </script>
+</body>
+</html>
