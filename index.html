@@ -136,28 +136,17 @@
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev',
       },
-      autoplay: {
-        delay: 20000, // 20 segundos
-        disableOnInteraction: false, // Continuar o autoplay mesmo após interação
-      },
+      // Desativar autoplay no swiper
+      autoplay: false, 
     });
 
     // Chamar a função para carregar as imagens
     fetchGoogleDriveFiles();
 
-    // Adicionar um timer para garantir que a transição ocorra mesmo que o autoplay falhe
+    // Garantir que a transição de slides ocorra a cada 20 segundos usando setInterval
     setInterval(() => {
-      if (!swiper.autoplay.running) {
-        swiper.slideNext(); // Garante que vai para o próximo slide
-      }
-    }, 20000); // Força a mudança a cada 20 segundos
-
-    // Verificar se o autoplay está parado e reiniciar caso necessário
-    setInterval(() => {
-      if (!swiper.autoplay.running) {
-        swiper.autoplay.start(); // Reinicia o autoplay se estiver parado
-      }
-    }, 20000);
+      swiper.slideNext();
+    }, 20000); // Força a mudança de slides a cada 20 segundos
 
     // Atualizar a página a cada 2 minutos (120.000 milissegundos)
     setTimeout(() => {
