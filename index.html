@@ -129,24 +129,23 @@
       }
     }
 
-    // Inicialização do carrossel Swiper com autoplay para mudar os slides a cada 20 segundos
+    // Inicialização do carrossel Swiper com autoplay desativado
     const swiper = new Swiper('.swiper-container', {
       loop: true,
       navigation: {
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev',
       },
-      // Desativar autoplay no swiper
-      autoplay: false, 
+      autoplay: false,
     });
 
     // Chamar a função para carregar as imagens
     fetchGoogleDriveFiles();
 
-    // Garantir que a transição de slides ocorra a cada 20 segundos usando setInterval
+    // Forçar a transição de slides a cada 20 segundos simulando o clique no botão "próximo"
     setInterval(() => {
-      swiper.slideNext();
-    }, 20000); // Força a mudança de slides a cada 20 segundos
+      document.querySelector('.swiper-button-next').click(); // Simula o clique no botão próximo
+    }, 20000); // Muda de slide a cada 20 segundos
 
     // Atualizar a página a cada 2 minutos (120.000 milissegundos)
     setTimeout(() => {
