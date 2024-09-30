@@ -44,10 +44,6 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    .upload-form input[type="file"] {
-      margin-right: 10px;
-    }
-
     /* Estilo para mensagem de erro */
     .error-message {
       color: red;
@@ -74,9 +70,13 @@
   </div>
 
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <!-- API do YouTube Player -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
     const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
     const API_KEY = 'AIzaSyBT_UvwH2mg-QtCGEkqkAFxlV4dfjMRHgw'; // Sua chave de API
+    let videoPlayer; // Variável para controlar o player do vídeo
 
     const carouselImages = document.getElementById('carousel-images');
     const errorMessage = document.getElementById('error-message');
@@ -121,13 +121,25 @@
             // Se for um vídeo
             else if (mimeType.startsWith('video/')) {
               const videoUrl = `https://drive.google.com/file/d/${file.id}/preview`;
-              const video = document.createElement('iframe'); // Usando iframe para vídeos
-              video.src = videoUrl;
-              video.width = "100%";
-              video.height = "100%";
-              video.allow = "autoplay"; // Permitir autoplay no iframe
-              video.style.border = "none"; // Remover borda do iframe
-              slide.appendChild(video);
+              const iframe = document.createElement('iframe'); // Usando <iframe>
+              iframe.src = videoUrl;
+              iframe.allow = "autoplay"; // Permitir autoplay
+              iframe.frameBorder = "0"; // Remove a borda do iframe
+              iframe.style.width = "100%";
+              iframe.style.height = "100%";
+              iframe.style.opacity = "0"; // Inicialmente invisível
+
+              // Exibir o iframe após o carregamento
+              iframe.onload = () => {
+                iframe.style.opacity = '1';
+              };
+
+              slide.appendChild(iframe);
+
+              // Tentar iniciar o vídeo automaticamente
+              setTimeout(() => {
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+              }, 1000);
             }
 
             carouselImages.appendChild(slide);
@@ -163,10 +175,18 @@
 
     // Adicionar um timer para garantir que o autoplay funcione corretamente
     setInterval(() => {
-      if (swiper.slides.length > 0) { // Verifica se há slides
+      if (swiper.slides.length > 0 && !swiper.autoplay.running) { // Verifica se há slides e se o autoplay está pausado
         swiper.slideNext(); // Muda para o próximo slide
       }
-    }, 20000); // Troca a cada 20 segundos
+    }, 20000); // Troca a cada 20 segundos, se autoplay estiver ativo
+
+    // Verificar se o autoplay está parado e reiniciar caso necessário
+    setInterval(() => {
+      if (!swiper.autoplay.running) {
+        swiper.autoplay.start(); // Reinicia o autoplay se estiver parado
+      }
+      swiper.slideNext(); // Garante que vai para o próximo slide
+    }, 20000);
 
     // Atualizar a página a cada 2 minutos (120.000 milissegundos)
     setTimeout(() => {
