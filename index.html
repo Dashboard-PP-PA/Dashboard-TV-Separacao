@@ -133,7 +133,7 @@
       }
     }
 
-    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 30 segundos
+    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 20 segundos
     const swiper = new Swiper('.swiper-container', {
       loop: true,
       navigation: {
@@ -141,20 +141,32 @@
         prevEl: '.swiper-button-prev',
       },
       autoplay: {
-        delay: 30000, // 30 segundos
+        delay: 20000, // 20 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
+      },
+      on: {
+        init: function () {
+          console.log('Swiper inicializado!');
+        },
+        autoplay: function () {
+          console.log('Autoplay acionado!');
+        }
       },
     });
 
+    // Fallback manual: Simular o clique no botão "próximo" caso o autoplay falhe
+    setInterval(() => {
+      console.log('Avançando slide manualmente.');
+      swiper.slideNext(); // Forçar a mudança para o próximo slide
+    }, 20000); // A cada 20 segundos
+
+    // Atualizar a página a cada 2 minutos (120000 ms)
+    setInterval(() => {
+      location.reload(); // Recarrega a página, como pressionar F5
+    }, 120000); // 2 minutos em milissegundos
+
     // Chamar a função para carregar as imagens
     fetchGoogleDriveImages();
-
-    // Adicionar um timer para garantir que o autoplay funcione
-    setInterval(() => {
-      if (swiper.slides.length > 0) { // Verifica se há slides
-        swiper.slideNext(); // Muda para o próximo slide
-      }
-    }, 10000); // Troca a cada 30 segundos
   </script>
 </body>
 </html>
