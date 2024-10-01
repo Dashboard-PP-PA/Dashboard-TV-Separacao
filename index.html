@@ -175,10 +175,19 @@
 
     // Adicionar um timer para garantir que o autoplay funcione corretamente
     setInterval(() => {
-      if (swiper.slides.length > 0 && !swiper.autoplay.running) { // Verifica se há slides e se o autoplay está pausado
+      // Se o autoplay estiver desativado, acionar o próximo slide manualmente
+      if (swiper.slides.length > 0 && !swiper.autoplay.running) {
         swiper.slideNext(); // Muda para o próximo slide
       }
     }, 20000); // Troca a cada 20 segundos, se autoplay estiver ativo
+
+    // Monitorar erros e garantir que o próximo slide seja ativado
+    setInterval(() => {
+      if (!swiper.autoplay.running) {
+        // Forçar a passagem de slides caso o autoplay esteja pausado
+        document.querySelector('.swiper-button-next').click();
+      }
+    }, 20000); // Tenta clicar no botão "próximo" a cada 20 segundos se o autoplay estiver pausado
 
     // Atualizar a página a cada 2 minutos (120.000 milissegundos)
     setTimeout(() => {
