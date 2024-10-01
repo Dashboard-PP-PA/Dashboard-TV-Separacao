@@ -109,6 +109,7 @@
               // Adiciona um evento 'onload' para garantir que a imagem carregue completamente
               img.onload = () => {
                 img.style.opacity = '1'; // Exibe a imagem após o carregamento
+                console.log('Imagem carregada:', file.name);
               };
               
               img.onerror = () => {
@@ -143,6 +144,8 @@
       autoplay: {
         delay: 20000, // 20 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
+        stopOnLastSlide: false, // Não parar o autoplay no último slide
+        waitForTransition: false, // Não esperar transição para autoplay
       },
       on: {
         init: function () {
@@ -150,6 +153,9 @@
         },
         autoplay: function () {
           console.log('Autoplay acionado!');
+        },
+        slideChange: function () {
+          console.log('Slide mudou para:', this.activeIndex);
         }
       },
     });
@@ -162,6 +168,7 @@
 
     // Atualizar a página a cada 2 minutos (120000 ms)
     setInterval(() => {
+      console.log('Recarregando a página.');
       location.reload(); // Recarrega a página, como pressionar F5
     }, 120000); // 2 minutos em milissegundos
 
