@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="PT-BR">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD SEPARACAO</title>
-    <link rel="stylesheet"
-      href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-    <style>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD SEPARAÇÃO</title>
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <style>
     html, body {
       margin: 0;
       height: 100%;
@@ -57,26 +56,25 @@
       display: none; /* Escondido por padrão */
     }
   </style>
-  </head>
-  <body>
+</head>
+<body>
+  
+  <!-- Mensagem de Erro -->
+  <div class="error-message" id="error-message">Erro ao carregar imagens. Tente novamente mais tarde.</div>
 
-    <!-- Mensagem de Erro -->
-    <div class="error-message" id="error-message">Erro ao carregar imagens.
-      Tente novamente mais tarde.</div>
-
-    <!-- Carrossel de Imagens -->
-    <div class="swiper-container">
-      <div class="swiper-wrapper" id="carousel-images">
-        <!-- Imagens serão inseridas dinamicamente -->
-      </div>
-
-      <!-- Add Arrows -->
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
+  <!-- Carrossel de Imagens -->
+  <div class="swiper-container">
+    <div class="swiper-wrapper" id="carousel-images">
+      <!-- Imagens serão inseridas dinamicamente -->
     </div>
 
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    <script>
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script>
     const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
     const API_KEY = 'AIzaSyBT_UvwH2mg-QtCGEkqkAFxlV4dfjMRHgw'; // Sua chave de API
 
@@ -146,28 +144,15 @@
         delay: 20000, // 20 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
       },
-      on: {
-        init: function () {
-          console.log('Swiper inicializado!');
-        },
-        autoplay: function () {
-          console.log('Autoplay acionado!');
-        }
-      },
     });
-   // Fallback manual: Simular o clique no botão "próximo" caso o autoplay falhe
-        setInterval(() => {
-      console.log('Avançando slide manualmente.');
-      swiper.slideNext(); // Forçar a mudança para o próximo slide
-    }, 10000); // A cada 20 segundos
 
-     // Recarregar a página a cada 2 minutos e 30 segundos (150 segundos)
-     setInterval(() => {
-      console.log('Recarregando a página...');
-      location.reload(); // Recarrega a página
-    }, 150000); // A cada 150 segundos (2 minutos e 30 segundos)
+    // Atualizar a página a cada 2 minutos (120000 ms)
+    setInterval(() => {
+      location.reload(); // Recarrega a página, como pressionar F5
+    }, 120000); // 2 minutos em milissegundos
+
     // Chamar a função para carregar as imagens
     fetchGoogleDriveImages();
   </script>
-  </body>
+</body>
 </html>
