@@ -24,7 +24,7 @@
       align-items: center;
     }
 
-    .swiper-slide img, .swiper-slide iframe {
+    .swiper-slide img {
       width: 90vw;
       height: 90vh;
       object-fit: contain;
@@ -32,7 +32,7 @@
       transition: opacity 0.5s ease-in;
     }
 
-    .swiper-slide img.visible, .swiper-slide iframe.visible {
+    .swiper-slide img.visible {
       opacity: 1;
     }
 
@@ -62,16 +62,14 @@
   <!-- Mensagem de Erro -->
   <div class="error-message" id="error-message">Erro ao carregar imagens. Tente novamente mais tarde.</div>
 
-  <!-- Carrossel de Imagens e Vídeos -->
+  <!-- Carrossel de Imagens -->
   <div class="swiper-container">
     <div class="swiper-wrapper" id="carousel-images">
-      <!-- Imagens e vídeos serão inseridos dinamicamente -->
+      <!-- Imagens serão inseridas dinamicamente -->
     </div>
   </div>
 
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-  <!-- API do YouTube Player -->
-  <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
     const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
@@ -80,7 +78,7 @@
     const carouselImages = document.getElementById('carousel-images');
     const errorMessage = document.getElementById('error-message');
 
-    // Função para buscar imagens e vídeos da API do Google Drive
+    // Função para buscar imagens da API do Google Drive
     async function fetchGoogleDriveFiles() {
       const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
       
@@ -96,11 +94,11 @@
           data.files.forEach(file => {
             const mimeType = file.mimeType;
 
-            const slide = document.createElement('div');
-            slide.classList.add('swiper-slide');
-
             // Se for uma imagem
             if (mimeType.startsWith('image/')) {
+              const slide = document.createElement('div');
+              slide.classList.add('swiper-slide');
+
               const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
               const img = document.createElement('img');
               img.src = imageUrl;
@@ -116,31 +114,12 @@
               };
 
               slide.appendChild(img);
+              carouselImages.appendChild(slide);
             }
-            // Se for um vídeo
-            else if (mimeType.startsWith('video/')) {
-              const videoUrl = `https://drive.google.com/file/d/${file.id}/preview`;
-              const iframe = document.createElement('iframe'); // Usando <iframe>
-              iframe.src = videoUrl;
-              iframe.allow = "autoplay"; // Permitir autoplay
-              iframe.frameBorder = "0"; // Remove a borda do iframe
-              iframe.style.width = "100%";
-              iframe.style.height = "100%";
-              iframe.classList.add('invisible'); // Inicialmente invisível
-
-              // Exibir o iframe após o carregamento
-              iframe.onload = () => {
-                iframe.classList.add('visible');
-              };
-
-              slide.appendChild(iframe);
-            }
-
-            carouselImages.appendChild(slide);
           });
 
-          // Atualizar o carrossel para os novos arquivos
-          swiper.update(); // Atualiza o Swiper com os novos slides
+          // Atualiza o carrossel para os novos arquivos
+          swiper.update();
         } else {
           // Se não houver arquivos, mostrar mensagem de erro
           errorMessage.style.display = 'block';
@@ -160,7 +139,7 @@
       },
     });
 
-    // Chamar a função para carregar as imagens e vídeos
+    // Chamar a função para carregar as imagens
     fetchGoogleDriveFiles();
 
     // Atualizar a página a cada 2 minutos (120.000 milissegundos)
