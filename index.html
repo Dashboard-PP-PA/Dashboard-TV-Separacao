@@ -15,7 +15,7 @@
 
     .swiper-container {
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* Ajuste para ocupar toda a altura da viewport */
     }
 
     .swiper-slide {
@@ -25,15 +25,11 @@
     }
 
     .swiper-slide img {
-      width: 90vw;
-      height: 90vh;
+      width: 90vw;  /* Ocupa 90% da largura da viewport */
+      height: 90vh; /* Ocupa 90% da altura da viewport */
       object-fit: contain;
       opacity: 0;
       transition: opacity 0.5s ease-in;
-    }
-
-    .swiper-slide img.visible {
-      opacity: 1;
     }
 
     /* Estilo do Formulário */
@@ -48,117 +44,89 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Estilo para mensagem de erro */
-    .error-message {
-      color: red;
-      text-align: center;
-      margin: 20px;
-      display: none; /* Escondido por padrão */
+    .upload-form input[type="file"] {
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
-
-  <!-- Mensagem de Erro -->
-  <div class="error-message" id="error-message">Erro ao carregar imagens. Tente novamente mais tarde.</div>
-
+  
   <!-- Carrossel de Imagens -->
   <div class="swiper-container">
     <div class="swiper-wrapper" id="carousel-images">
       <!-- Imagens serão inseridas dinamicamente -->
     </div>
+
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
   </div>
 
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-
   <script>
     const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
     const API_KEY = 'AIzaSyBT_UvwH2mg-QtCGEkqkAFxlV4dfjMRHgw'; // Sua chave de API
 
     const carouselImages = document.getElementById('carousel-images');
-    const errorMessage = document.getElementById('error-message');
 
-    // Carregar a biblioteca Google API
-    function handleClientLoad() {
-      gapi.load('client', initClient);
-    }
-
-    // Inicializar o cliente da API Google Drive
-    function initClient() {
-      gapi.client.init({
-        apiKey: API_KEY,
-        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"]
-      }).then(() => {
-        // Chamar a função para buscar as imagens
-        listFiles();
-      }, (error) => {
-        console.error('Erro ao inicializar a API:', error);
-        errorMessage.style.display = 'block';
-      });
-    }
-
-    // Função para listar os arquivos na pasta
-    function listFiles() {
-      gapi.client.drive.files.list({
-        'q': `'${FOLDER_ID}' in parents and mimeType contains 'image/'`,
-        'fields': 'files(id, name, mimeType)'
-      }).then((response) => {
-        const files = response.result.files;
-        if (files && files.length > 0) {
-          // Limpar o carrossel antes de carregar novos arquivos
+    // Função para buscar imagens da API do Google Drive
+    async function fetchGoogleDriveImages() {
+      const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.files) {
+          // Limpar o carrossel antes de carregar novas imagens
           carouselImages.innerHTML = '';
-          errorMessage.style.display = 'none'; // Esconder a mensagem de erro
 
-          files.forEach(file => {
-            const slide = document.createElement('div');
-            slide.classList.add('swiper-slide');
+          data.files.forEach(file => {
+            // Verifica se o arquivo é uma imagem
+            if (file.mimeType.startsWith('image/')) {
+              const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
 
-            const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = file.name;
+              
+              const slide = document.createElement('div');
+              slide.classList.add('swiper-slide');
+              
+              const img = document.createElement('img');
+              img.src = imageUrl;
+              img.alt = file.name;
 
-            img.onload = () => {
-              img.classList.add('visible');
-            };
-
-            img.onerror = () => {
-              console.error('Erro ao carregar imagem:', imageUrl);
-              img.src = ''; // Limpa a imagem se houver erro
-            };
-
-            slide.appendChild(img);
-            carouselImages.appendChild(slide);
+              // Adiciona um evento 'onload' para garantir que a imagem carregue completamente
+              img.onload = () => {
+                img.style.opacity = '1'; // Exibe a imagem após o carregamento
+              };
+              
+              slide.appendChild(img);
+              carouselImages.appendChild(slide);
+            }
           });
 
-          // Atualiza o carrossel para os novos arquivos
+          // Atualiza o carrossel para as novas imagens
           swiper.update();
-        } else {
-          errorMessage.style.display = 'block';
         }
-      }, (error) => {
-        console.error('Erro ao buscar arquivos:', error);
-        errorMessage.style.display = 'block'; // Mostrar mensagem de erro
-      });
+      } catch (error) {
+        console.error('Erro ao buscar imagens:', error);
+      }
     }
 
-    // Inicialização do carrossel Swiper com autoplay para mudar os slides a cada 20 segundos
+    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 30 segundos
     const swiper = new Swiper('.swiper-container', {
       loop: true,
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
       autoplay: {
-        delay: 20000, // 20 segundos
+        delay: 10000, // 30 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
       },
     });
 
-    // Chamar a função para carregar a API
-    handleClientLoad();
-
-    // Atualizar a página a cada 2 minutos (120.000 milissegundos)
-    setTimeout(() => {
-      window.location.reload();
-    }, 120000);
+    // Chamar a função para carregar as imagens
+    fetchGoogleDriveImages();
   </script>
 </body>
 </html>
