@@ -112,7 +112,7 @@
       }
     }
 
-    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 30 segundos
+    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 10 segundos
     const swiper = new Swiper('.swiper-container', {
       loop: true,
       navigation: {
@@ -120,13 +120,18 @@
         prevEl: '.swiper-button-prev',
       },
       autoplay: {
-        delay: 10000, // 30 segundos
+        delay: 10000, // 10 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
       },
     });
 
     // Chamar a função para carregar as imagens
     fetchGoogleDriveImages();
+
+    // Reinicializar o autoplay após o reload
+    window.addEventListener('load', function () {
+      swiper.autoplay.start(); // Reinicia o autoplay quando a página for recarregada
+    });
 
     // Função para recarregar a página a cada 2 minutos e 30 segundos (150000 milissegundos)
     setTimeout(function() {
