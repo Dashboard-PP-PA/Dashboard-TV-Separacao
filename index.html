@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DASHBOARD SEPARAÇÃO</title>
+  <title>DASHBOARD SEPARACAO</title>
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
   <style>
     html, body {
@@ -141,10 +141,27 @@
         prevEl: '.swiper-button-prev',
       },
       autoplay: {
-        delay: 20000, // 20 segundos
+        delay: 10000, // 20 segundos
         disableOnInteraction: false, // Continuar o autoplay mesmo após interação
       },
+      on: {
+        init: function () {
+          console.log('Swiper inicializado!');
+        },
+        autoplay: function () {
+          console.log('Autoplay acionado!');
+        }
+      },
     });
+
+    // Fallback manual: Simular o clique no botão "próximo" caso o autoplay falhe
+    let autoplayBackup = setInterval(() => {
+      // Verificar se o autoplay está ativo
+      if (!swiper.autoplay.running) {
+        console.log('Autoplay não está funcionando, avançando slide manualmente.');
+        swiper.slideNext(); // Forçar a mudança para o próximo slide
+      }
+    }, 10000); // A cada 10 segundos
 
     // Atualizar a página a cada 2 minutos (120000 ms)
     setInterval(() => {
