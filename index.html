@@ -53,7 +53,7 @@
       color: red;
       text-align: center;
       margin: 20px;
-      display: none; /* Escondido por padrão */
+      display: none;
     }
   </style>
 </head>
@@ -95,7 +95,6 @@
           errorMessage.style.display = 'none'; // Esconder a mensagem de erro
 
           data.files.forEach(file => {
-            // Verifica se o arquivo é uma imagem
             if (file.mimeType.startsWith('image/')) {
               const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
 
@@ -106,14 +105,13 @@
               img.src = imageUrl;
               img.alt = file.name;
 
-              // Adiciona um evento 'onload' para garantir que a imagem carregue completamente
               img.onload = () => {
-                img.style.opacity = '1'; // Exibe a imagem após o carregamento
+                img.style.opacity = '1';
               };
               
               img.onerror = () => {
                 console.error('Erro ao carregar imagem:', imageUrl);
-                img.src = ''; // Limpa a imagem se houver erro
+                img.src = '';
               };
               
               slide.appendChild(img);
@@ -121,19 +119,16 @@
             }
           });
 
-          // Atualiza o carrossel para as novas imagens
           swiper.update();
         } else {
-          // Se não houver arquivos, mostrar mensagem de erro
           errorMessage.style.display = 'block';
         }
       } catch (error) {
         console.error('Erro ao buscar imagens:', error);
-        errorMessage.style.display = 'block'; // Mostrar mensagem de erro
+        errorMessage.style.display = 'block';
       }
     }
 
-    // Inicialização do carrossel Swiper com autoplay para mudar as imagens a cada 20 segundos
     const swiper = new Swiper('.swiper-container', {
       loop: true,
       navigation: {
@@ -141,8 +136,8 @@
         prevEl: '.swiper-button-prev',
       },
       autoplay: {
-        delay: 20000, // 20 segundos
-        disableOnInteraction: false, // Continuar o autoplay mesmo após interação
+        delay: 20000,
+        disableOnInteraction: false,
       },
       on: {
         init: function () {
@@ -154,14 +149,17 @@
       },
     });
 
-    // Fallback manual: Simular o clique no botão "próximo" caso o autoplay falhe
     setInterval(() => {
       console.log('Avançando slide manualmente.');
-      swiper.slideNext(); // Forçar a mudança para o próximo slide
-    }, 10000); // A cada 20 segundos
+      swiper.slideNext();
+    }, 20000);
 
-    // Chamar a função para carregar as imagens
     fetchGoogleDriveImages();
+
+    // Atualizar a página a cada 5 minutos
+    setInterval(() => {
+      location.reload();
+    }, 300000); // 5 minutos
   </script>
 </body>
 </html>
