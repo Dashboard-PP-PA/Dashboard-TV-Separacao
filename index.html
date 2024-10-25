@@ -136,7 +136,7 @@
         prevEl: '.swiper-button-prev',
       },
       autoplay: {
-        delay: 10000,
+        delay: 10000, // Alterado para 10 segundos
         disableOnInteraction: false,
       },
       on: {
@@ -152,14 +152,14 @@
     setInterval(() => {
       console.log('Avançando slide manualmente.');
       swiper.slideNext();
-    }, 20000);
+    }, 10000); // Alterado para 10 segundos
 
     fetchGoogleDriveImages();
 
-    // Atualizar a página a cada 5 minutos
+    // Atualizar a página a cada 10 horas
     setInterval(() => {
       location.reload();
-    }, 36000000); // 10 horas
+    }, 36000000); // 10 horas em milissegundos (10 * 60 * 60 * 1000)
   </script>
 </body>
 </html>
