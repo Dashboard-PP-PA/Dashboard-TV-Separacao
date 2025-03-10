@@ -32,7 +32,6 @@
       transition: opacity 0.5s ease-in;
     }
 
-    /* Estilo do Formulário */
     .upload-form {
       position: fixed;
       bottom: 20px;
@@ -48,7 +47,6 @@
       margin-right: 10px;
     }
 
-    /* Estilo para mensagem de erro */
     .error-message {
       color: red;
       text-align: center;
@@ -59,16 +57,11 @@
 </head>
 <body>
   
-  <!-- Mensagem de Erro -->
   <div class="error-message" id="error-message">Erro ao carregar imagens. Tente novamente mais tarde.</div>
 
-  <!-- Carrossel de Imagens -->
   <div class="swiper-container">
     <div class="swiper-wrapper" id="carousel-images">
-      <!-- Imagens serão inseridas dinamicamente -->
     </div>
-
-    <!-- Add Arrows -->
     <div class="swiper-button-next"></div>
     <div class="swiper-button-prev"></div>
   </div>
@@ -77,11 +70,10 @@
   <script>
     const FOLDER_ID = '1fDUpVVse5HpIs6Rv8oFuHmpF36ZUbIoI'; // ID da pasta no Google Drive
     const API_KEY = 'AIzaSyBT_UvwH2mg-QtCGEkqkAFxlV4dfjMRHgw'; // Sua chave de API
-
     const carouselImages = document.getElementById('carousel-images');
     const errorMessage = document.getElementById('error-message');
+    let swiper = null;
 
-    // Função para buscar imagens da API do Google Drive
     async function fetchGoogleDriveImages() {
       const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
       
@@ -90,36 +82,70 @@
         const data = await response.json();
 
         if (data.files && data.files.length > 0) {
-          // Limpar o carrossel antes de carregar novas imagens
           carouselImages.innerHTML = '';
-          errorMessage.style.display = 'none'; // Esconder a mensagem de erro
+          errorMessage.style.display = 'none';
 
-          data.files.forEach(file => {
-            if (file.mimeType.startsWith('image/')) {
-              const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
+          const imagePromises = data.files
+            .filter(file => file.mimeType.startsWith('image/'))
+            .map(file => {
+              return new Promise((resolve) => {
+                const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=s1080`;
+                const slide = document.createElement('div');
+                slide.classList.add('swiper-slide');
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = file.name;
 
-              const slide = document.createElement('div');
-              slide.classList.add('swiper-slide');
-              
-              const img = document.createElement('img');
-              img.src = imageUrl;
-              img.alt = file.name;
+                img.onload = () => {
+                  img.style.opacity = '1';
+                  resolve(slide);
+                };
+                
+                img.onerror = () => {
+                  console.error('Erro ao carregar imagem:', imageUrl);
+                  resolve(null);
+                };
+                
+                slide.appendChild(img);
+              });
+            });
 
-              img.onload = () => {
-                img.style.opacity = '1';
-              };
-              
-              img.onerror = () => {
-                console.error('Erro ao carregar imagem:', imageUrl);
-                img.src = '';
-              };
-              
-              slide.appendChild(img);
-              carouselImages.appendChild(slide);
-            }
+          const slides = await Promise.all(imagePromises);
+          slides.filter(slide => slide !== null).forEach(slide => {
+            carouselImages.appendChild(slide);
           });
 
-          swiper.update();
+          // Destruir o Swiper existente se houver
+          if (swiper) {
+            swiper.destroy(true, true);
+          }
+
+          // Inicializar novo Swiper após as imagens serem carregadas
+          swiper = new Swiper('.swiper-container', {
+            loop: true,
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+            autoplay: {
+              delay: 10000,
+              disableOnInteraction: false,
+            },
+            on: {
+              init: function () {
+                console.log('Swiper inicializado!');
+                // Forçar início do autoplay
+                this.autoplay.start();
+              },
+              autoplay: function () {
+                console.log('Autoplay acionado!');
+              }
+            },
+          });
+
+          // Garantir que o autoplay comece
+          swiper.autoplay.start();
         } else {
           errorMessage.style.display = 'block';
         }
@@ -129,37 +155,20 @@
       }
     }
 
-    const swiper = new Swiper('.swiper-container', {
-      loop: true,
-      navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-      },
-      autoplay: {
-        delay: 10000, // Alterado para 10 segundos
-        disableOnInteraction: false,
-      },
-      on: {
-        init: function () {
-          console.log('Swiper inicializado!');
-        },
-        autoplay: function () {
-          console.log('Autoplay acionado!');
-        }
-      },
-    });
-
-    setInterval(() => {
-      console.log('Avançando slide manualmente.');
-      swiper.slideNext();
-    }, 10000); // Alterado para 10 segundos
-
+    // Carregar imagens inicialmente
     fetchGoogleDriveImages();
 
-    // Atualizar a página a cada 10 horas
+    // Recarregar imagens e reiniciar Swiper a cada 5 MINUTOS
     setInterval(() => {
       location.reload();
-    }, 36000000); // 10 horas em milissegundos (10 * 60 * 60 * 1000)
+    }, 300000);
+
+    // Garantir que o autoplay continue após interações do usuário
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && swiper) {
+        swiper.autoplay.start();
+      }
+    });
   </script>
 </body>
 </html>
